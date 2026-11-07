@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: tunan-cinema
+    runtime: docker
+    dockerfilePath: ./Dockerfile.render
+    plan: free
+    region: oregon
+    healthCheckPath: /api/public/health
+    autoDeploy: true
+    envVars:
+      - key: EMBEDDED_DB
+        value: "1"
+      - key: DB_URL
+        value: "jdbc:mysql://127.0.0.1:3306/tunan_cinema?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false"
+      - key: DB_USER
+        value: tunan
+      - key: DB_PASSWORD
+        value: tunan_cloud_2026
+      - key: JWT_SECRET
+        generateValue: true
+      - key: TZ
+        value: Asia/Shanghai
