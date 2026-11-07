@@ -1,0 +1,29 @@
+<script setup>
+import { onMounted, reactive, ref } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import http from '@/api/http'
+
+const loading = ref(true)
+const rooms = ref([])
+const visible = ref(false)
+const editingId = ref(null)
+const form = reactive({ name: '', seatRows: 8, seatCols: 8, roomType: '激光厅', status: 1 })
+async function load() { loading.value = true; try { const { data } = await http.get('/cinema/rooms'); rooms.value = data } finally { loading.value = false } }
+function open(item) { editingId.value = item?.id || null; Object.assign(form, item ? { name: item.name, seatRows: item.seatRows, seatCols: item.seatCols, roomType: item.roomType, status: item.status } : { name: '', seatRows: 8, seatCols: 8, roomType: '激光厅', status: 1 }); visible.value = true }
+async function save() { if (!form.name) return ElMessage.warning('请填写影厅名称'); if (editingId.value) await http.put(`/cinema/rooms/${editingId.value}`, form); else await http.post('/cinema/rooms', form); ElMessage.success('影厅信息已保存'); visible.value = false; load() }
+async function remove(item) { await ElMessageBox.confirm(`确定删除“${item.name}”吗？已关联排片时无法删除。`, '删除影厅', { type: 'warning' }); await http.delete(`/cinema/rooms/${item.id}`); ElMessage.success('已删除'); load() }
+onMounted(load)
+</script>
+<template>
+  <div class="admin-page"><div class="page-intro"><div><span>SCREEN ROOMS</span><h2>影厅管理</h2><p>维护影院放映厅，每个影厅默认采用8行8列座位布局。</p></div><el-button type="primary" :icon="Plus" @click="open()">新增影厅</el-button></div><div v-loading="loading" class="room-grid"><article v-for="room in rooms" :key="room.id" class="room-card surface"><div class="room-top"><div class="room-icon"><el-icon><Monitor /></el-icon></div><div class="room-status"><i :class="{ off: room.status !== 1 }"></i>{{ room.status===1?'运营中':'已停用' }}</div></div><span class="room-code">ROOM {{ String(room.id).padStart(3,'0') }}</span><h3>{{ room.name }}</h3><p>{{ room.roomType }}</p><div class="seat-layout"><div v-for="r in room.seatRows" :key="r" class="seat-line"><i v-for="c in room.seatCols" :key="c"></i></div><span>8 × 8 座位</span></div><div class="room-meta"><span>座位数 <b>{{ room.seatRows * room.seatCols }}</b></span><span>创建于 <b>{{ room.createdAt?.slice(0,10) }}</b></span></div><div class="room-actions"><el-button link @click="open(room)">编辑</el-button><el-button link type="danger" @click="remove(room)">删除</el-button></div></article><button class="add-room" @click="open()"><el-icon><Plus /></el-icon><strong>新增影厅</strong><span>配置新的放映空间</span></button></div>
+    <el-dialog v-model="visible" :title="editingId?'编辑影厅':'新增影厅'" width="min(480px,92vw)"><el-form label-position="top"><el-form-item label="影厅名称"><el-input v-model="form.name" placeholder="例如：3号激光厅" /></el-form-item><el-form-item label="影厅类型"><el-select v-model="form.roomType" class="w-full"><el-option label="激光厅" value="激光厅" /><el-option label="激光IMAX" value="激光IMAX" /><el-option label="杜比全景声" value="杜比全景声" /><el-option label="情侣厅" value="情侣厅" /><el-option label="亲子厅" value="亲子厅" /><el-option label="艺术厅" value="艺术厅" /></el-select></el-form-item><div class="form-grid"><el-form-item label="座位行数"><el-input-number v-model="form.seatRows" :min="1" :max="20" class="w-full" /></el-form-item><el-form-item label="座位列数"><el-input-number v-model="form.seatCols" :min="1" :max="20" class="w-full" /></el-form-item></div><el-form-item v-if="editingId" label="运营状态"><el-switch v-model="form.status" :active-value="1" :inactive-value="0" active-text="启用" /></el-form-item></el-form><template #footer><el-button @click="visible=false">取消</el-button><el-button type="primary" @click="save">保存影厅</el-button></template></el-dialog>
+  </div>
+</template>
+<script>
+import { Plus } from '@element-plus/icons-vue'
+export default { components: { Plus } }
+</script>
+<style scoped>
+.page-intro{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px}.page-intro>div>span{color:var(--orange);font-size:8px;letter-spacing:2px}.page-intro h2{font-size:25px;margin:7px 0 5px}.page-intro p{color:var(--muted);font-size:10px}.room-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.room-card{padding:18px}.room-top{display:flex;justify-content:space-between;align-items:center}.room-icon{width:38px;height:38px;border-radius:10px;background:var(--orange-soft);color:var(--orange);display:grid;place-items:center;font-size:18px}.room-status{display:flex;align-items:center;gap:4px;color:var(--green);font-size:8px}.room-status i{width:5px;height:5px;border-radius:50%;background:var(--green)}.room-status i.off{background:#aaa}.room-code{display:block;color:#b4ada3;font-family:Consolas,monospace;font-size:7px;letter-spacing:1px;margin-top:15px}.room-card h3{font-size:17px;margin:6px 0 4px}.room-card>p{color:var(--muted);font-size:9px;margin:0}.seat-layout{background:#f8f6f1;border-radius:8px;padding:12px;margin:15px 0;display:grid;gap:2px;justify-items:center}.seat-line{display:flex;gap:2px}.seat-line i{width:3px;height:3px;border-radius:1px;background:#c8c3b9}.seat-layout>span{color:#aaa39a;font-size:7px;margin-top:5px}.room-meta{display:flex;justify-content:space-between;color:#aaa39a;font-size:7px}.room-meta b{color:#5a6575}.room-actions{display:flex;justify-content:flex-end;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}.add-room{border:1px dashed #d8d1c6;background:transparent;border-radius:15px;min-height:335px;display:grid;place-items:center;align-content:center;gap:8px;cursor:pointer;color:#aaa39a}.add-room .el-icon{width:40px;height:40px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:18px}.add-room strong{color:#6b7482;font-size:11px}.add-room span{font-size:8px}
+@media(max-width:900px){.room-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){.room-grid{grid-template-columns:1fr}.add-room{min-height:130px}.page-intro{display:block}.page-intro>.el-button{margin-top:12px}}
+</style>

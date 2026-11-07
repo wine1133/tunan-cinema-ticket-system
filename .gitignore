@@ -1,0 +1,17 @@
+# Build output
+backend/target/
+backend/src/main/resources/static/
+frontend/node_modules/
+frontend/dist/
+.runtime/
+.analysis/
+*.log
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+Thumbs.db
+.DS_Store
