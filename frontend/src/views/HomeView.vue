@@ -22,13 +22,13 @@ const videoSlide = {
   title: '你是我今生最美的相遇',
   englishTitle: 'TUNAN CINEMA · A BEAUTIFUL ENCOUNTER',
   genreNames: '冬日特别企划',
-  duration: 30,
-  clipDuration: 30,
+  duration: 76,
+  clipDuration: 76,
   director: '兔南电影',
   synopsis: '人海茫茫，相遇本身就是一场礼物。兔南电影冬日特别企划，用一段光影，陪你重温那些温柔而珍贵的瞬间。',
   poster: '/videos/tunan-special-poster.jpg',
   backdrop: '/videos/tunan-special-poster.jpg',
-  video: '/videos/tunan-special-30s.mp4'
+  video: '/videos/tunan-special-76s.mp4'
 }
 const featured = computed(() => data.value.now.slice(0, 3))
 const slides = computed(() => [videoSlide, ...featured.value])
@@ -130,9 +130,9 @@ onBeforeUnmount(() => {
               <div class="hero-en">{{ hero.englishTitle }}</div>
               <div class="hero-meta">
                 <template v-if="isVideoHero">
-                  <span class="hero-score">30s</span>
+                  <span class="hero-score">1:16</span>
                   <span>冬日先导片</span>
-                  <span>前30秒 · 有声音</span>
+                  <span>前1分16秒 · 有声音</span>
                 </template>
                 <template v-else>
                   <span class="hero-score">{{ hero.score }}</span>
@@ -149,8 +149,9 @@ onBeforeUnmount(() => {
             </div>
         </div>
         <div v-if="isVideoHero" :key="hero.id" class="hero-poster-card video-card">
+          <img class="video-ambient" :src="hero.poster" alt="" aria-hidden="true" />
           <video ref="heroVideo" :src="hero.video" :poster="hero.poster" :muted="videoMuted" autoplay preload="auto" playsinline @loadedmetadata="playHeroVideo" @canplay="playHeroVideo" @ended="nextHero" @timeupdate="updateVideoProgress"></video>
-          <span class="video-label"><i></i> 前30秒冬日先导片</span>
+          <span class="video-label"><i></i> 1分16秒冬日先导片</span>
           <button class="video-sound" @click="toggleVideoMute">{{ videoMuted ? '开启声音' : '静音' }}</button>
           <div class="video-progress"><i :style="{ width: `${videoProgress}%` }"></i></div>
         </div>
@@ -250,7 +251,7 @@ onBeforeUnmount(() => {
 .hero-backdrop { position:absolute; inset:0; background-position:center; background-size:cover; transition:background-image .6s ease; transform:scale(1.02); animation:heroZoom 20s ease-in-out infinite alternate; }
 .hero-vignette { position:absolute; inset:0; background: linear-gradient(90deg,rgba(5,10,17,.97) 0%,rgba(5,10,17,.8) 38%,rgba(5,10,17,.26) 75%,rgba(5,10,17,.45) 100%),linear-gradient(0deg,rgba(5,10,17,.92),transparent 35%); }
 .hero-inner { min-height: 564px; position:relative; z-index:2; display:grid; grid-template-columns:minmax(0,1fr) 280px 155px; align-items:center; gap:32px; }
-.hero-inner.video-mode { min-height:720px; grid-template-columns:minmax(0,1fr) 155px; }
+.hero-inner.video-mode { min-height:820px; grid-template-columns:minmax(0,1fr) 155px; }
 .hero-inner.video-mode .hero-copy { position:relative; z-index:3; max-width:650px; }
 .hero-inner.video-mode .hero-side { position:relative; z-index:3; }
 .hero-copy { width:auto; padding:65px 0 45px; }
@@ -258,12 +259,14 @@ onBeforeUnmount(() => {
 .hero-poster-card:hover { transform:rotate(0) translateY(-5px); }
 .hero-poster-card img, .hero-poster-card video { width:100%; aspect-ratio:2/3; object-fit:cover; border-radius:9px; box-shadow:0 28px 58px rgba(0,0,0,.5); border:1px solid rgba(255,255,255,.16); }
 .hero-poster-card.video-card { width:280px; aspect-ratio:9/16; overflow:hidden; transform:rotate(0); background:#080d15; }
-.hero-inner.video-mode .hero-poster-card.video-card { position:absolute; z-index:1; top:50%; right:0; width:860px; height:668px; aspect-ratio:auto; border-radius:16px; transform:translateY(-50%); border:1px solid rgba(255,255,255,.08); box-shadow:0 35px 80px rgba(0,0,0,.42); }
-.hero-inner.video-mode .video-card::after { content:''; position:absolute; inset:0; z-index:1; pointer-events:none; background:linear-gradient(90deg,rgba(5,10,17,.96) 0%,rgba(5,10,17,.62) 26%,transparent 62%),linear-gradient(0deg,rgba(5,10,17,.78),transparent 38%); }
-.hero-inner.video-mode .video-card video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 36%; border:0; border-radius:0; box-shadow:none; }
-.hero-inner.video-mode .video-label { z-index:2; left:22px; top:18px; }
-.hero-inner.video-mode .video-sound { z-index:2; right:175px; bottom:30px; }
-.hero-inner.video-mode .video-progress { z-index:2; left:22px; right:190px; bottom:22px; }
+.hero-inner.video-mode .hero-poster-card.video-card { position:absolute; z-index:1; top:50%; right:0; width:860px; height:760px; aspect-ratio:auto; border-radius:16px; transform:translateY(-50%); border:1px solid rgba(255,255,255,.08); box-shadow:0 35px 80px rgba(0,0,0,.42); }
+.hero-inner.video-mode .video-card::after { content:''; position:absolute; inset:0; z-index:1; pointer-events:none; background:linear-gradient(0deg,rgba(5,10,17,.58),transparent 24%); }
+.hero-inner.video-mode .video-card video { position:absolute; top:0; bottom:0; left:50%; width:auto; height:100%; transform:translateX(-50%); object-fit:contain; object-position:center; border:0; border-radius:0; box-shadow:none; }
+.video-ambient { position:absolute; inset:-26px; z-index:0; width:calc(100% + 52px); height:calc(100% + 52px); object-fit:cover; filter:blur(28px) brightness(.38) saturate(.8); transform:scale(1.08); opacity:.9; aspect-ratio:auto; border:0; border-radius:0; box-shadow:none; }
+.hero-inner.video-mode .video-card video { z-index:1; background:#05070c; }
+.hero-inner.video-mode .video-label { z-index:3; left:22px; top:18px; }
+.hero-inner.video-mode .video-sound { z-index:3; right:175px; bottom:30px; }
+.hero-inner.video-mode .video-progress { z-index:3; left:22px; right:190px; bottom:22px; }
 .hero-poster-card.video-card video { height:100%; aspect-ratio:auto; image-rendering:auto; backface-visibility:hidden; }
 .video-label { position:absolute; top:10px; left:10px; display:flex!important; align-items:center; gap:5px; margin:0!important; padding:5px 7px; border-radius:5px; background:rgba(8,13,21,.72); backdrop-filter:blur(8px); color:#fff!important; font-size:7px!important; letter-spacing:.5px!important; }
 .video-label i { width:5px; height:5px; border-radius:50%; background:#ff6542; box-shadow:0 0 8px #ff6542; }
@@ -309,6 +312,6 @@ onBeforeUnmount(() => {
 .fade-enter-active,.fade-leave-active{transition:opacity .25s,transform .25s}.fade-enter-from{opacity:0;transform:translateY(12px)}.fade-leave-to{opacity:0;transform:translateY(-8px)}
 @keyframes heroZoom{to{transform:scale(1.08)}}@keyframes pulse{50%{opacity:.45}}
 @media(max-width:1100px){.home-movies{grid-template-columns:1fr}.home-rank{position:static;display:none}.main-grid{grid-template-columns:repeat(4,1fr)}.hero-inner{grid-template-columns:minmax(0,1fr) 280px;gap:35px}.hero-poster-card.video-card{width:280px}.hero-side{display:none}.hero-copy{width:auto}}
-@media(max-width:850px){.hero-shell{min-height:570px}.hero-copy{position:relative;z-index:3;width:100%;padding:55px 0 35px}.hero-inner{position:relative;min-height:510px;display:block}.hero-poster-card{display:none}.hero-inner.video-mode{min-height:510px}.hero-inner.video-mode .hero-poster-card.video-card{position:absolute;inset:0;width:100%;height:100%;border-radius:0;transform:none;box-shadow:none;border:0}.hero-poster-card.video-card{display:block;position:absolute;inset:0;width:100%;height:100%;z-index:1;border-radius:0}.video-card video{position:absolute;inset:0;height:100%;object-fit:cover;object-position:center 24%;border:0;border-radius:0;box-shadow:none;filter:brightness(.57)}.video-card::after{content:'';position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,rgba(5,10,17,.92),rgba(5,10,17,.22)),linear-gradient(0deg,rgba(5,10,17,.78),transparent 55%)}.video-label,.video-sound,.video-progress{position:relative;z-index:2}.video-label{top:auto;left:auto;position:absolute;right:12px;top:12px}.video-sound{right:12px;bottom:30px}.video-progress{left:12px;right:12px;bottom:18px}.hero-content h1{letter-spacing:-3px}.main-grid{grid-template-columns:repeat(3,1fr)}.home-bottom{grid-template-columns:1fr}.editorial-posters{opacity:.35;right:-10%}.editorial-copy{width:75%}.ticker-date{display:none}}
+@media(max-width:850px){.hero-shell{min-height:570px}.hero-copy{position:relative;z-index:3;width:100%;padding:55px 0 35px}.hero-inner{position:relative;min-height:510px;display:block}.hero-poster-card{display:none}.hero-inner.video-mode{min-height:510px}.hero-inner.video-mode .hero-poster-card.video-card{position:absolute;inset:0;width:100%;height:100%;border-radius:0;transform:none;box-shadow:none;border:0}.hero-poster-card.video-card{display:block;position:absolute;inset:0;width:100%;height:100%;z-index:1;border-radius:0}.video-card video{position:absolute;inset:0;left:0;right:0;width:100%;height:100%;transform:none;object-fit:cover;object-position:center 24%;border:0;border-radius:0;box-shadow:none;filter:brightness(.57)}.video-card::after{content:'';position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,rgba(5,10,17,.92),rgba(5,10,17,.22)),linear-gradient(0deg,rgba(5,10,17,.78),transparent 55%)}.video-label,.video-sound,.video-progress{position:relative;z-index:2}.video-label{top:auto;left:auto;position:absolute;right:12px;top:12px}.video-sound{right:12px;bottom:30px}.video-progress{left:12px;right:12px;bottom:18px}.hero-content h1{letter-spacing:-3px}.main-grid{grid-template-columns:repeat(3,1fr)}.home-bottom{grid-template-columns:1fr}.editorial-posters{opacity:.35;right:-10%}.editorial-copy{width:75%}.ticker-date{display:none}}
 @media(max-width:620px){.hero-shell{min-height:560px}.hero-inner{min-height:500px}.hero-copy{padding:40px 0 20px}.hero-content h1{font-size:54px}.hero-meta span:nth-last-child(-n+2){display:none}.hero-actions{flex-direction:column;align-items:stretch;max-width:220px}.hero-actions .el-button{margin:0}.main-grid{grid-template-columns:repeat(2,1fr)}.ticker-track span:nth-child(n+3){display:none}.editorial-copy{width:100%}.editorial-posters{display:none}.score-row{grid-template-columns:22px 34px 1fr 38px}.score-bar{display:none}.notice-card{grid-template-columns:40px 1fr}.notice-index{display:none}.discover-head .head-stat{display:none}}
 </style>
