@@ -261,7 +261,7 @@ onBeforeUnmount(() => {
 .hero-poster-card.video-card { width:280px; aspect-ratio:9/16; overflow:hidden; transform:rotate(0); background:#080d15; }
 .hero-inner.video-mode .hero-poster-card.video-card { position:absolute; z-index:1; top:50%; right:0; width:860px; height:760px; aspect-ratio:auto; border-radius:16px; transform:translateY(-50%); border:1px solid rgba(255,255,255,.08); box-shadow:0 35px 80px rgba(0,0,0,.42); }
 .hero-inner.video-mode .video-card::after { content:''; position:absolute; inset:0; z-index:1; pointer-events:none; background:linear-gradient(0deg,rgba(5,10,17,.58),transparent 24%); }
-.hero-inner.video-mode .video-card video { position:absolute; top:0; bottom:0; left:50%; width:auto; height:100%; transform:translateX(-50%); object-fit:contain; object-position:center; border:0; border-radius:0; box-shadow:none; }
+.hero-inner.video-mode .video-card video { position:absolute; top:0; bottom:0; left:50%; width:min(544px, 100%); height:100%; transform:translateX(-50%); object-fit:cover; object-position:center center; border:0; border-radius:0; box-shadow:none; filter:contrast(1.03) saturate(1.04); }
 .video-ambient { position:absolute; inset:-26px; z-index:0; width:calc(100% + 52px); height:calc(100% + 52px); object-fit:cover; filter:blur(28px) brightness(.38) saturate(.8); transform:scale(1.08); opacity:.9; aspect-ratio:auto; border:0; border-radius:0; box-shadow:none; }
 .hero-inner.video-mode .video-card video { z-index:1; background:#05070c; }
 .hero-inner.video-mode .video-label { z-index:3; left:22px; top:18px; }
