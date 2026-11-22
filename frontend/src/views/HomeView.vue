@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import http from '@/api/http'
 import MovieCard from '@/components/MovieCard.vue'
@@ -11,7 +11,7 @@ const data = ref({ now: [], soon: [], boxOffice: [], scoreRank: [], notices: [],
 const heroIndex = ref(0)
 const trailerVisible = ref(false)
 const trailerUrl = ref('')
-const videoMuted = ref(true)
+const videoMuted = ref(false)
 const videoProgress = ref(0)
 const heroVideo = ref(null)
 let timer
@@ -22,12 +22,13 @@ const videoSlide = {
   title: '你是我今生最美的相遇',
   englishTitle: 'TUNAN CINEMA · A BEAUTIFUL ENCOUNTER',
   genreNames: '冬日特别企划',
-  duration: 35,
+  duration: 30,
+  clipDuration: 30,
   director: '兔南电影',
   synopsis: '人海茫茫，相遇本身就是一场礼物。兔南电影冬日特别企划，用一段光影，陪你重温那些温柔而珍贵的瞬间。',
-  poster: '/videos/tunan-winter-poster.jpg',
-  backdrop: '/videos/tunan-winter-wide.jpg',
-  video: '/videos/tunan-winter-2026.mp4'
+  poster: '/videos/tunan-special-poster.jpg',
+  backdrop: '/videos/tunan-special-poster.jpg',
+  video: '/videos/tunan-special-30s.mp4'
 }
 const featured = computed(() => data.value.now.slice(0, 3))
 const slides = computed(() => [videoSlide, ...featured.value])
@@ -58,25 +59,61 @@ function openTrailer() {
 }
 function updateVideoProgress(event) {
   const video = event.target
-  if (video.duration) videoProgress.value = (video.currentTime / video.duration) * 100
+  const limit = Number(hero.value.clipDuration || video.duration || 0)
+  if (limit) videoProgress.value = Math.min(100, (video.currentTime / limit) * 100)
+  if (hero.value.clipDuration && video.currentTime >= hero.value.clipDuration) {
+    video.pause()
+    nextHero()
+  }
 }
 function toggleVideoMute() {
+  window.removeEventListener('pointerdown', unlockVideoSound, true)
+  window.removeEventListener('keydown', unlockVideoSound, true)
   videoMuted.value = !videoMuted.value
-  if (heroVideo.value) heroVideo.value.muted = videoMuted.value
+  if (heroVideo.value) {
+    heroVideo.value.muted = videoMuted.value
+    heroVideo.value.volume = 1
+  }
 }
-function playHeroVideo() {
+async function playHeroVideo() {
   const video = heroVideo.value
   if (!video) return
+  video.volume = 1
   video.muted = videoMuted.value
+  try {
+    await video.play()
+  } catch {
+    videoMuted.value = true
+    video.muted = true
+    await video.play().catch(() => {})
+  }
+}
+function unlockVideoSound(event) {
+  if (event?.target?.closest?.('.video-sound')) return
+  window.removeEventListener('pointerdown', unlockVideoSound, true)
+  window.removeEventListener('keydown', unlockVideoSound, true)
+  if (!isVideoHero.value) return
+  videoMuted.value = false
+  const video = heroVideo.value
+  if (!video) return
+  video.muted = false
+  video.volume = 1
   video.play().catch(() => {})
 }
 onMounted(() => {
   load()
+  nextTick(playHeroVideo)
+  window.addEventListener('pointerdown', unlockVideoSound, true)
+  window.addEventListener('keydown', unlockVideoSound, true)
   timer = setInterval(() => {
     if (!isVideoHero.value && slides.value.length) nextHero()
   }, 7000)
 })
-onBeforeUnmount(() => clearInterval(timer))
+onBeforeUnmount(() => {
+  clearInterval(timer)
+  window.removeEventListener('pointerdown', unlockVideoSound, true)
+  window.removeEventListener('keydown', unlockVideoSound, true)
+})
 </script>
 
 <template>
@@ -93,9 +130,9 @@ onBeforeUnmount(() => clearInterval(timer))
               <div class="hero-en">{{ hero.englishTitle }}</div>
               <div class="hero-meta">
                 <template v-if="isVideoHero">
-                  <span class="hero-score">35s</span>
+                  <span class="hero-score">30s</span>
                   <span>冬日先导片</span>
-                  <span>自动静音播放</span>
+                  <span>前30秒 · 有声音</span>
                 </template>
                 <template v-else>
                   <span class="hero-score">{{ hero.score }}</span>
@@ -112,8 +149,8 @@ onBeforeUnmount(() => clearInterval(timer))
             </div>
         </div>
         <div v-if="isVideoHero" :key="hero.id" class="hero-poster-card video-card">
-          <video ref="heroVideo" :src="hero.video" :poster="hero.poster" autoplay muted preload="auto" playsinline @canplay="playHeroVideo" @ended="nextHero" @timeupdate="updateVideoProgress"></video>
-          <span class="video-label"><i></i> 35秒冬日先导片</span>
+          <video ref="heroVideo" :src="hero.video" :poster="hero.poster" :muted="videoMuted" autoplay preload="auto" playsinline @loadedmetadata="playHeroVideo" @canplay="playHeroVideo" @ended="nextHero" @timeupdate="updateVideoProgress"></video>
+          <span class="video-label"><i></i> 前30秒冬日先导片</span>
           <button class="video-sound" @click="toggleVideoMute">{{ videoMuted ? '开启声音' : '静音' }}</button>
           <div class="video-progress"><i :style="{ width: `${videoProgress}%` }"></i></div>
         </div>
