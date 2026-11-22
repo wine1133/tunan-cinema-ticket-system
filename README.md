@@ -5,7 +5,7 @@
 ## 技术栈
 
 - 前端：Vue 3、Vite、Vue Router、Element Plus、Axios、ECharts
-- 后端：Java 17、Spring Boot 3、MyBatis、Hutool、JWT
+- 后端：Java 17、Spring Boot 3、MyBatis、Hutool、JWT、AI 客服混合问答
 - 数据库：MySQL 8.0
 - 部署：Spring Boot 内嵌静态前端、Cloudflare Tunnel 临时公网访问、Docker Compose
 
@@ -64,6 +64,7 @@ docker compose up --build -d
 - 多影院多场次排片与在线选座
 - 模拟支付、取票码、订单查询和取消
 - 收藏电影、评分短评、个人资料与密码修改
+- 悬浮 AI 客服：常见问题即时回复，复杂问题可选接入大模型，对话写入 MySQL
 
 ### 影院端
 
@@ -99,6 +100,23 @@ docker compose up --build -d
 
 `database/schema.sql` 负责建表，`database/data.sql` 负责初始化演示数据。后端启动时也会自动执行这两份脚本，重复启动不会重复插入初始化数据。
 
+## AI 客服配置
+
+客服采用“知识库 + 大模型”的混合模式：
+
+- 未配置密钥时，系统使用内置知识库自动回答购票、选座、支付、取票、取消订单、影院地址和影片推荐等常见问题。
+- 配置 OpenAI 兼容接口后，知识库无法回答的问题会交给大模型；大模型不可用时会自动回退到知识库。
+- 每次用户提问和客服回复都会写入 MySQL 的 `customer_service_messages` 表。
+
+可选环境变量：
+
+```powershell
+$env:OPENAI_API_KEY = "你的服务端 API Key"
+$env:OPENAI_BASE_URL = "https://api.openai.com/v1"
+$env:OPENAI_MODEL = "gpt-4o-mini"
+```
+
+API Key 只放在服务端环境变量中，不会发送到浏览器，也不要提交到 GitHub。
 ## 公网部署说明
 
 `start.ps1` 使用 Cloudflare Quick Tunnel 创建免登录的临时 HTTPS 地址，适合课程演示和验收。该地址在服务停止后会失效。如需长期固定域名，可将项目部署到云服务器，并配置 Nginx、HTTPS 和正式 Cloudflare Tunnel。

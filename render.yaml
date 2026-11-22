@@ -18,5 +18,9 @@ services:
         value: tunan_cloud_2026
       - key: JWT_SECRET
         generateValue: true
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
       - key: TZ
         value: Asia/Shanghai

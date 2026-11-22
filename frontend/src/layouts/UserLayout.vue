@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import BrandLogo from '@/components/BrandLogo.vue'
+import AiCustomerService from '@/components/AiCustomerService.vue'
 import { auth } from '@/stores/auth'
 
 const route = useRoute()
@@ -111,6 +112,8 @@ onMounted(() => {
         </div>
       </div>
     </footer>
+
+    <AiCustomerService />
 
     <nav class="mobile-nav">
       <router-link to="/"><el-icon><HomeFilled /></el-icon><span>首页</span></router-link>
